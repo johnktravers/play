@@ -16,4 +16,3 @@ script:
 
 before_script:
   - psql -c 'create database play_test;' -U postgres
-  - knex migrate:latest --env test
