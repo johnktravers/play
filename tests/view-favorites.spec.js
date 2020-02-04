@@ -71,4 +71,14 @@ describe('Test the favorites path', () => {
     expect(res.body[2].rating).toBeGreaterThanOrEqual(1);
     expect(res.body[2].rating).toBeLessThanOrEqual(100);
   });
+
+  test('It should send back a message saying there were no favorites found if there are no favorites', async () => {
+    const res = await request(app)
+      .get("/api/v1/favorites");
+
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body).toHaveProperty('message');
+    expect(res.body.message).toEqual("No favorites found!");
+  });
 });
