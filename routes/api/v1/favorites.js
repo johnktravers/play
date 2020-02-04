@@ -51,5 +51,16 @@ router.post('/', async (request, response) => {
 
 });
 
+router.get('/', async (request, response) => {
+  database('favorites')
+      .then((favorites) => {
+        if (favorites.length) {
+          response.status(200).json(favorites);
+        } else {
+          response.status(200).json({ message: 'No favorites found!' });
+        }
+      }).catch(error => response.status(404).json({error: "There was an error!"}));
+});
+
 module.exports = router;
 
