@@ -15,7 +15,7 @@ describe('Test the favorites path', () => {
     database.raw('truncate table favorites cascade');
   });
 
-  test('It should send back all of a users favorites', async () => {
+  test('It should send back all of a users favorite tracks', async () => {
 
       let favorite1 = {
         title: "We Will Rock You",
