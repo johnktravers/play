@@ -44,8 +44,6 @@ describe('Test the favorites path', () => {
   test('It should send back all of a users favorites', async () => {
     const res = await request(app)
     .get("/api/v1/favorites")
-    .send({ title: "We Will Rock You", artistName: "Queen" })
-    .type('form');
 
     expect(res.statusCode).toBe(200);
 
@@ -67,10 +65,10 @@ describe('Test the favorites path', () => {
     expect(res.body[1].rating).toBeGreaterThanOrEqual(1);
     expect(res.body[1].rating).toBeLessThanOrEqual(100);
 
-    expect(res.body[1].title).toEqual('Changes');
-    expect(res.body[1].artistName).toEqual('2Pac');
-    expect(res.body[1].genre).toEqual('Hip Hop/Rap');
-    expect(res.body[1].rating).toBeGreaterThanOrEqual(1);
-    expect(res.body[1].rating).toBeLessThanOrEqual(100);
+    expect(res.body[2].title).toEqual('Changes');
+    expect(res.body[2].artistName).toEqual('2Pac');
+    expect(res.body[2].genre).toEqual('Hip Hop/Rap');
+    expect(res.body[2].rating).toBeGreaterThanOrEqual(1);
+    expect(res.body[2].rating).toBeLessThanOrEqual(100);
   });
 });
