@@ -51,5 +51,12 @@ router.post('/', async (request, response) => {
 
 });
 
+router.get('/', async (request, response) => {
+  database('favorites')
+      .then((favorites) => {
+        response.status(200).json(favorites);
+      });
+});
+
 module.exports = router;
 
