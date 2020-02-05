@@ -24,19 +24,13 @@ router.post('/', async (request, response) => {
     };
     url.search = new URLSearchParams(params).toString();
 
+
     try {
       let favoriteTrack = await fetch(url);
       let trackData = await favoriteTrack.json();
       let track = new Track(trackData);
-
-      let insertToDB = database('favorites').insert(
-        { title: track.title,
-          artistName: track.artistName,
-          genre: track.genre,
-          rating: track.rating
-        }, ['id', 'title', 'artistName', 'genre', 'rating'])
-        .then(track => response.status(200).json(track[0]));
       await alreadyFavorite(track, response);
+      await addFavoriteToDB(track, response);
     } catch(error) {
       console.log(error);
       response.status(200).json({error: 'There was an error.'});
@@ -63,7 +57,6 @@ router.get('/', async (request, response) => {
       }).catch(error => response.status(404).json({error: "There was an error!"}));
 });
 
-module.exports = router;
 
 function alreadyFavorite(track, response) {
   return database('favorites')
@@ -74,3 +67,18 @@ function alreadyFavorite(track, response) {
       }
     })
 };
+
+function addFavoriteToDB(track, response) {
+  return database('favorites')
+    .insert(
+      {
+        title: track.title,
+        artistName: track.artistName,
+        genre: track.genre,
+        rating: track.rating
+      }, ['id', 'title', 'artistName', 'genre', 'rating']
+    )
+    .then(track => response.status(201).json(track[0]));
+};
+
+module.exports = router;
