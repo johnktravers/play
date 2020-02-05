@@ -23,16 +23,15 @@ router.post('/', async (request, response) => {
       await alreadyFavorite(track, response);
       await addFavoriteToDB(track, response);
     } catch(error) {
-      console.log(error);
-      response.status(200).json({error: 'There was an error.'});
+      errorResponse(500, 'Something went wrong. Please try again.', response)
     }
 
-  } else if (request.body.title && !request.body.artistName) {
-    response.status(400).json({error: 'Bad Request! Did you send an artist name?'});
-  } else if (!request.body.title && request.body.artistName) {
-    response.status(400).json({error: 'Bad Request! Did you send a song title?'});
+  } else if (trackTitle && !artistName) {
+    errorResponse(400, 'Bad Request! Did you send an artist name?', response)
+  } else if (!trackTitle && artistName) {
+    errorResponse(400, 'Bad Request! Did you send a song title?', response)
   } else {
-    response.status(400).json({error: 'Bad Request! Did you send an artist name and song title?'});
+    errorResponse(400, 'Bad Request! Did you send an artist name and song title?', response)
   }
 
 });
@@ -54,7 +53,7 @@ function alreadyFavorite(track, response) {
     .where({title: track.title, artistName: track.artistName})
     .then(result => {
       if (result.length) {
-        response.status(409).json({error: 'That track has already been added to your favorites!'})
+        errorResponse(409, 'That track has already been added to your favorites!', response)
       }
     })
 };
@@ -69,7 +68,15 @@ function addFavoriteToDB(track, response) {
         rating: track.rating
       }, ['id', 'title', 'artistName', 'genre', 'rating']
     )
-    .then(track => response.status(201).json(track[0]));
+    .then(track => response.status(201).json(track[0]))
+    .catch(error => errorResponse(500, error, response))
 };
+
+function errorResponse(status, message, response) {
+  response.status(status).json({
+    status: status,
+    errorMessage: message
+  });
+}
 
 module.exports = router;
