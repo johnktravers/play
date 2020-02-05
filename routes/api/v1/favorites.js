@@ -1,6 +1,6 @@
 const dotenv = require('dotenv').config();
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 const Track = require('../../../pojos/track');
 const musixmatchService = require('../../../services/musixmatch-service');
@@ -8,8 +8,7 @@ const musixmatchService = require('../../../services/musixmatch-service');
 const environment = process.env.NODE_ENV || 'development';
 const configuration = require('../../../knexfile')[environment];
 const database = require('knex')(configuration);
-const fetch = require('node-fetch');
-const { URL, URLSearchParams } = require('url');
+
 
 router.post('/', async (request, response) => {
   let trackTitle = request.body.title;
@@ -20,7 +19,8 @@ router.post('/', async (request, response) => {
     try {
       let trackData = await musixmatchService.getTrackData(trackTitle, artistName, response);
       let track = new Track(trackData);
-      await alreadyFavorite(track, response);
+      let exists = await alreadyFavorite(track, response)
+      if (exists) { return errorResponse(409, exists, response) }
       await addFavoriteToDB(track, response);
     } catch(error) {
       return errorResponse(500, 'Something went wrong. Please try again.', response)
@@ -53,7 +53,7 @@ async function alreadyFavorite(track, response) {
     .where({title: track.title, artistName: track.artistName})
     .then(result => {
       if (result.length) {
-        return errorResponse(409, 'That track has already been added to your favorites!', response)
+        return 'That track has already been added to your favorites!'
       }
     })
 };
