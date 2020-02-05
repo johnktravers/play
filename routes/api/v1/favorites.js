@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 const Track = require('../../../pojos/track');
+const musixmatchService = require('../../../services/musixmatch-service');
 
 const environment = process.env.NODE_ENV || 'development';
 const configuration = require('../../../knexfile')[environment];
@@ -11,23 +12,13 @@ const fetch = require('node-fetch');
 const { URL, URLSearchParams } = require('url');
 
 router.post('/', async (request, response) => {
-  if (request.body.title && request.body.artistName) {
-    let trackTitle = request.body.title;
-    let artistName = request.body.artistName;
+  let trackTitle = request.body.title;
+  let artistName = request.body.artistName;
 
-    let url = new URL('https://api.musixmatch.com/ws/1.1/track.search');
-    let params = {
-      apikey: process.env.MUSIXMATCH_API_KEY,
-      q_artist: artistName,
-      q_track: trackTitle,
-      s_artist_rating: 'desc'
-    };
-    url.search = new URLSearchParams(params).toString();
-
+  if (trackTitle && artistName) {
 
     try {
-      let favoriteTrack = await fetch(url);
-      let trackData = await favoriteTrack.json();
+      let trackData = await musixmatchService.getTrackData(trackTitle, artistName, response);
       let track = new Track(trackData);
       await alreadyFavorite(track, response);
       await addFavoriteToDB(track, response);
