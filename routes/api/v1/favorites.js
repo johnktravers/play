@@ -23,15 +23,15 @@ router.post('/', async (request, response) => {
       await alreadyFavorite(track, response);
       await addFavoriteToDB(track, response);
     } catch(error) {
-      errorResponse(500, 'Something went wrong. Please try again.', response)
+      return errorResponse(500, 'Something went wrong. Please try again.', response)
     }
 
   } else if (trackTitle && !artistName) {
-    errorResponse(400, 'Bad Request! Did you send an artist name?', response)
+    return errorResponse(400, 'Bad Request! Did you send an artist name?', response)
   } else if (!trackTitle && artistName) {
-    errorResponse(400, 'Bad Request! Did you send a song title?', response)
+    return errorResponse(400, 'Bad Request! Did you send a song title?', response)
   } else {
-    errorResponse(400, 'Bad Request! Did you send an artist name and song title?', response)
+    return errorResponse(400, 'Bad Request! Did you send an artist name and song title?', response)
   }
 
 });
@@ -40,9 +40,9 @@ router.get('/', async (request, response) => {
   database('favorites')
       .then((favorites) => {
         if (favorites.length) {
-          response.status(200).json(favorites);
+          return response.status(200).json(favorites);
         } else {
-          response.status(200).json({ message: 'No favorites found!' });
+          return response.status(200).json({ message: 'No favorites found!' });
         }
       }).catch(error => response.status(404).json({error: "There was an error!"}));
 });
@@ -53,7 +53,7 @@ function alreadyFavorite(track, response) {
     .where({title: track.title, artistName: track.artistName})
     .then(result => {
       if (result.length) {
-        errorResponse(409, 'That track has already been added to your favorites!', response)
+        return errorResponse(409, 'That track has already been added to your favorites!', response)
       }
     })
 };
@@ -73,10 +73,10 @@ function addFavoriteToDB(track, response) {
 };
 
 function errorResponse(status, message, response) {
-  response.status(status).json({
+  return response.status(status).json({
     status: status,
     errorMessage: message
   });
-}
+};
 
 module.exports = router;
