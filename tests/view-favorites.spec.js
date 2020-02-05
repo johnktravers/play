@@ -11,8 +11,8 @@ describe('Test the favorites path', () => {
     await database.raw('truncate table favorites cascade');
   });
 
-  afterEach(() => {
-    database.raw('truncate table favorites cascade');
+  afterEach(async () => {
+    await database.raw('truncate table favorites cascade');
   });
 
   test('It should send back all of a users favorite tracks', async () => {

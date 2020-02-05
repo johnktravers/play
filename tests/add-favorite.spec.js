@@ -11,8 +11,8 @@ describe('Add favorites endpoint', () => {
        await database.raw('truncate table favorites cascade');
     });
 
-    afterEach(() => {
-      database.raw('truncate table favorites cascade');
+    afterEach(async () => {
+      await database.raw('truncate table favorites cascade');
     });
 
   test('It can add a new favorite track', async () => {
@@ -21,7 +21,7 @@ describe('Add favorites endpoint', () => {
       .send({ title: "We Will Rock You", artistName: "Queen" })
       .type('form');
 
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(201);
 
     expect(res.body).toHaveProperty('id');
     expect(res.body).toHaveProperty('title');
@@ -38,47 +38,50 @@ describe('Add favorites endpoint', () => {
 
   test('It cannot add a new favorite track if missing the artist name', async () => {
     const res = await request(app)
-
-    .post("/api/v1/favorites")
-    .send({ title: "We Will Rock You" })
-    .type('form');
+      .post("/api/v1/favorites")
+      .send({ title: "We Will Rock You" })
+      .type('form');
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('error');
-    expect(res.body.error).toEqual('Bad Request! Did you send an artist name?');
+    expect(res.body).toHaveProperty('status');
+    expect(res.body).toHaveProperty('errorMessage');
+    expect(res.body.status).toEqual(400);
+    expect(res.body.errorMessage).toEqual('Bad Request! Did you send an artist name?');
   });
 
   test('It cannot add a new favorite track if missing the track title', async () => {
     const res = await request(app)
-
-    .post("/api/v1/favorites")
-    .send({ artistName: "Queen" })
-    .type('form');
+      .post("/api/v1/favorites")
+      .send({ artistName: "Queen" })
+      .type('form');
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('error');
-    expect(res.body.error).toEqual('Bad Request! Did you send a song title?');
+    expect(res.body).toHaveProperty('status');
+    expect(res.body).toHaveProperty('errorMessage');
+    expect(res.body.status).toEqual(400);
+    expect(res.body.errorMessage).toEqual('Bad Request! Did you send a song title?');
   });
 
   test('It cannot add a new favorite track if missing the track title and artist name', async () => {
     const res = await request(app)
-
-    .post("/api/v1/favorites")
-    .send({})
-    .type('form');
+      .post("/api/v1/favorites")
+      .send({})
+      .type('form');
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('error');
-    expect(res.body.error).toEqual('Bad Request! Did you send an artist name and song title?');
+    expect(res.body).toHaveProperty('status');
+    expect(res.body).toHaveProperty('errorMessage');
+    expect(res.body.status).toEqual(400);
+    expect(res.body.errorMessage).toEqual('Bad Request! Did you send an artist name and song title?');
   });
 
   test('It adds the track if the genre is unknown', async () => {
     const res = await request(app)
+      .post("/api/v1/favorites")
+      .send({ title: "We Will Rock You", artistName: "Queen, Anastacia, Amampondo Drummers" })
+      .type('form');
 
-    .post("/api/v1/favorites")
-    .send({ title: "We Will Rock You", artistName: "Queen, Anastacia, Amampondo Drummers" })
-    .type('form');
-
+    expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body).toHaveProperty('title');
     expect(res.body).toHaveProperty('artistName');
@@ -90,5 +93,25 @@ describe('Add favorites endpoint', () => {
     expect(res.body.genre).toEqual('Unknown');
     expect(res.body.rating).toBeGreaterThanOrEqual(1);
     expect(res.body.rating).toBeLessThanOrEqual(100);
+  });
+
+  test('It cannot favorite the same track twice', async () => {
+    await database('favorites').insert({
+      title: 'Taylor',
+      artistName: 'Jack Johnson',
+      genre: 'Rock',
+      rating: 26
+    })
+
+    const res = await request(app)
+      .post("/api/v1/favorites")
+      .send({ title: "Taylor", artistName: "Jack Johnson" })
+      .type('form');
+
+    expect(res.statusCode).toBe(409)
+    expect(res.body).toHaveProperty('status')
+    expect(res.body).toHaveProperty('errorMessage')
+    expect(res.body.status).toBe(409)
+    expect(res.body.errorMessage).toBe('That track has already been added to your favorites!')
   });
 });
