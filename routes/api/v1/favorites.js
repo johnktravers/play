@@ -36,6 +36,7 @@ router.post('/', async (request, response) => {
           rating: track.rating
         }, ['id', 'title', 'artistName', 'genre', 'rating'])
         .then(track => response.status(200).json(track[0]));
+      await alreadyFavorite(track, response);
     } catch(error) {
       console.log(error);
       response.status(200).json({error: 'There was an error.'});
@@ -64,3 +65,12 @@ router.get('/', async (request, response) => {
 
 module.exports = router;
 
+function alreadyFavorite(track, response) {
+  return database('favorites')
+    .where({title: track.title, artistName: track.artistName})
+    .then(result => {
+      if (result.length) {
+        response.status(409).json({error: 'That track has already been added to your favorites!'})
+      }
+    })
+};
