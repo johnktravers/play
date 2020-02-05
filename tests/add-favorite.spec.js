@@ -91,4 +91,24 @@ describe('Add favorites endpoint', () => {
     expect(res.body.rating).toBeGreaterThanOrEqual(1);
     expect(res.body.rating).toBeLessThanOrEqual(100);
   });
+
+  test('It cannot favorite the same track twice', async () => {
+    await database('favorites').insert({
+      title: 'Taylor',
+      artistName: 'Jack Johnson',
+      genre: 'Rock',
+      rating: 26
+    })
+
+    const res = await request(app)
+      .post("/api/v1/favorites")
+      .send({ title: "Taylor", artistName: "Jack Johnson" })
+      .type('form');
+
+    expect(res.statusCode).toBe(409)
+    expect(res.body).toHaveProperty('status')
+    expect(res.body).toHaveProperty('errorMessage')
+    expect(res.body.status).toBe(409)
+    expect(res.body.errorMessage).toBe('That track has already been added to your favorites!')
+  });
 });
