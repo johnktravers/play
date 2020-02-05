@@ -11,8 +11,8 @@ describe('Test the favorites path', () => {
     await database.raw('truncate table favorites cascade');
   });
 
-  afterEach(() => {
-    database.raw('truncate table favorites cascade');
+  afterEach(async () => {
+    await database.raw('truncate table favorites cascade');
   });
 
   test('It should send back all of a users favorite tracks', async () => {
@@ -72,13 +72,12 @@ describe('Test the favorites path', () => {
     expect(res.body[2].rating).toBeLessThanOrEqual(100);
   });
 
-  test('It should send back a message saying there were no favorites found if there are no favorites', async () => {
+  test('It should send back an the empty array if there are no favorites', async () => {
     const res = await request(app)
       .get("/api/v1/favorites");
 
     expect(res.statusCode).toBe(200);
 
-    expect(res.body).toHaveProperty('message');
-    expect(res.body.message).toEqual("No favorites found!");
+    expect(res.body).toEqual([]);
   });
 });
