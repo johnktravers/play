@@ -62,5 +62,18 @@ router.get('/', async (request, response) => {
       }).catch(error => response.status(404).json({error: "There was an error!"}));
 });
 
-module.exports = router;
+router.delete('/:id', async (request, response) => {
+  database('favorites')
+    .where('id', request.params.id)
+    .del()
+    .then(rows => {
+      if (rows === 1) {
+        return response.status(204).send();
+      } else {
+        return response.status(404).json({error: 'No favorite track with that ID was found. Please try again.'});
+      }
+    })
+    .catch(error => response.status(500).json({error: 'There was an error!'}));
+});
 
+module.exports = router;
