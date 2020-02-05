@@ -52,14 +52,25 @@ router.post('/', async (request, response) => {
 });
 
 router.get('/', async (request, response) => {
-  database('favorites')
+  database('favorites').select()
       .then((favorites) => {
         if (favorites.length) {
           response.status(200).json(favorites);
         } else {
-          response.status(200).json({ message: 'No favorites found!' });
+          response.status(200).json(favorites);
         }
-      }).catch(error => response.status(404).json({error: "There was an error!"}));
+      }).catch(error => response.status(500).json({error: "There was an error!"}));
+});
+
+router.get('/:id', async (request, response) => {
+  database('favorites').where('id', request.params.id).select()
+      .then((favorite) => {
+        if (favorite.length) {
+          response.status(200).json(favorite[0]);
+        } else {
+          response.status(404).json({error: "No favorite track was found with that id"});
+        }
+      }).catch(error => response.status(500).json({error: "There was an error!"}));
 });
 
 module.exports = router;
