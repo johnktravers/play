@@ -37,7 +37,7 @@ router.post('/', async (request, response) => {
 });
 
 router.get('/', async (request, response) => {
-  database('favorites')
+  return await database('favorites')
       .then((favorites) => {
         if (favorites.length) {
           return response.status(200).json(favorites);
@@ -48,8 +48,8 @@ router.get('/', async (request, response) => {
 });
 
 
-function alreadyFavorite(track, response) {
-  return database('favorites')
+async function alreadyFavorite(track, response) {
+  return await database('favorites')
     .where({title: track.title, artistName: track.artistName})
     .then(result => {
       if (result.length) {
@@ -58,8 +58,8 @@ function alreadyFavorite(track, response) {
     })
 };
 
-function addFavoriteToDB(track, response) {
-  return database('favorites')
+async function addFavoriteToDB(track, response) {
+  return await database('favorites')
     .insert(
       {
         title: track.title,
