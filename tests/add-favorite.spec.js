@@ -11,8 +11,8 @@ describe('Add favorites endpoint', () => {
        await database.raw('truncate table favorites cascade');
     });
 
-    afterEach(() => {
-      database.raw('truncate table favorites cascade');
+    afterEach(async () => {
+      await database.raw('truncate table favorites cascade');
     });
 
   test('It can add a new favorite track', async () => {
