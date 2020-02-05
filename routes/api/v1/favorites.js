@@ -37,14 +37,20 @@ router.post('/', async (request, response) => {
 });
 
 router.get('/', async (request, response) => {
-  return await database('favorites')
-      .then((favorites) => {
-        if (favorites.length) {
-          return response.status(200).json(favorites);
+  return await database('favorites').select()
+      .then((favorites) => response.status(200).json(favorites))
+      .catch(error => response.status(500).json({error: "There was an error!"}));
+});
+
+router.get('/:id', async (request, response) => {
+  return await database('favorites').where('id', request.params.id).select()
+      .then((favorite) => {
+        if (favorite.length) {
+          response.status(200).json(favorite[0]);
         } else {
-          return response.status(200).json({ message: 'No favorites found!' });
+          response.status(404).json({error: "No favorite track was found with that id"});
         }
-      }).catch(error => response.status(404).json({error: "There was an error!"}));
+      }).catch(error => response.status(500).json({error: "There was an error!"}));
 });
 
 
