@@ -38,13 +38,8 @@ router.post('/', async (request, response) => {
 
 router.get('/', async (request, response) => {
   return await database('favorites').select()
-      .then((favorites) => {
-        if (favorites.length) {
-          return response.status(200).json(favorites);
-        } else {
-          response.status(200).json(favorites);
-        }
-      }).catch(error => response.status(500).json({error: "There was an error!"}));
+      .then((favorites) => response.status(200).json(favorites))
+      .catch(error => response.status(500).json({error: "There was an error!"}));
 });
 
 router.get('/:id', async (request, response) => {
