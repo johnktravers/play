@@ -54,11 +54,7 @@ router.post('/', async (request, response) => {
 router.get('/', async (request, response) => {
   database('favorites').select()
       .then((favorites) => {
-        if (favorites.length) {
           response.status(200).json(favorites);
-        } else {
-          response.status(200).json(favorites);
-        }
       }).catch(error => response.status(500).json({error: "There was an error!"}));
 });
 
