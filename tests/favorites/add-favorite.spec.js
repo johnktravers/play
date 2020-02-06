@@ -1,18 +1,18 @@
 var shell = require('shelljs');
 var request = require("supertest");
-var app = require('../app');
+var app = require('../../app');
 
 const environment = process.env.NODE_ENV || 'test';
-const configuration = require('../knexfile')[environment];
+const configuration = require('../../knexfile')[environment];
 const database = require('knex')(configuration);
 
 describe('Add favorites endpoint', () => {
   beforeEach(async () => {
-    await database.raw('truncate table favorites cascade');
+    await database.raw('TRUNCATE TABLE favorites RESTART IDENTITY CASCADE');
   });
 
   afterEach(async () => {
-    await database.raw('truncate table favorites cascade');
+    await database.raw('TRUNCATE TABLE favorites RESTART IDENTITY CASCADE');
   });
 
   test('It can add a new favorite track', async () => {
@@ -29,6 +29,7 @@ describe('Add favorites endpoint', () => {
     expect(res.body).toHaveProperty('genre');
     expect(res.body).toHaveProperty('rating');
 
+    expect(res.body.id).toEqual(1); // TEST THAT THE TABLE IS BEING TRUNCATED
     expect(res.body.title).toEqual('We Will Rock You');
     expect(res.body.artistName).toEqual('Queen');
     expect(res.body.genre).toEqual('Rock');
