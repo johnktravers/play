@@ -37,7 +37,6 @@ describe('Test the favorites path', () => {
     const res = await request(app)
       .get(`/api/v1/favorites/${favorite1_id}`);
 
-    console.log(res.body);
     expect(res.statusCode).toBe(200);
 
     expect(res.body).toHaveProperty('id');
@@ -62,9 +61,10 @@ describe('Test the favorites path', () => {
       .get(`/api/v1/favorites/10000000`);
 
       expect(res.statusCode).toBe(404);
-
-      expect(res.body).toHaveProperty('error');
-      expect(res.body.error).toEqual("No favorite track was found with that id");
+      expect(res.body).toHaveProperty('status');
+      expect(res.body).toHaveProperty('errorMessage');
+      expect(res.body.status).toEqual(404);
+      expect(res.body.errorMessage).toEqual('No favorite track with given ID was found. Please check the ID and try again.');
   });
 
 });

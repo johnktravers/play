@@ -52,7 +52,9 @@ describe('Delete favorites endpoint', () => {
       .delete('/api/v1/favorites/4');
 
     expect(res.statusCode).toBe(404);
-    expect(res.body).toHaveProperty('error');
-    expect(res.body.error).toBe('No favorite track with that ID was found. Please try again.')
+    expect(res.body).toHaveProperty('status');
+    expect(res.body).toHaveProperty('errorMessage');
+    expect(res.body.status).toEqual(404);
+    expect(res.body.errorMessage).toEqual('No favorite track with given ID was found. Please check the ID and try again.');
   });
 });

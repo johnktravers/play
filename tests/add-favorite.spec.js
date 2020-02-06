@@ -8,12 +8,12 @@ const database = require('knex')(configuration);
 
 describe('Add favorites endpoint', () => {
   beforeEach(async () => {
-       await database.raw('truncate table favorites cascade');
-    });
+    await database.raw('truncate table favorites cascade');
+  });
 
-    afterEach(async () => {
-      await database.raw('truncate table favorites cascade');
-    });
+  afterEach(async () => {
+    await database.raw('truncate table favorites cascade');
+  });
 
   test('It can add a new favorite track', async () => {
     const res = await request(app)
@@ -34,6 +34,19 @@ describe('Add favorites endpoint', () => {
     expect(res.body.genre).toEqual('Rock');
     expect(res.body.rating).toBeGreaterThanOrEqual(1);
     expect(res.body.rating).toBeLessThanOrEqual(100);
+  });
+
+  test('It shows an error if the track cannot be found', async () => {
+    const res = await request(app)
+      .post("/api/v1/favorites")
+      .send({ artistName: 'askjbgfafg', title: 'asfgkjaadk' })
+      .type('form');
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty('status');
+    expect(res.body).toHaveProperty('errorMessage');
+    expect(res.body.status).toEqual(400);
+    expect(res.body.errorMessage).toEqual('No track found. Please check track title and artist name and try again.');
   });
 
   test('It cannot add a new favorite track if missing the artist name', async () => {
