@@ -17,33 +17,33 @@ describe('Test the favorites path', () => {
 
   test('It should send back all of a users favorite tracks', async () => {
 
-      let favorite1 = {
-        title: "We Will Rock You",
-        artistName: "Queen",
-        genre: "Rock",
-        rating: 87
-      };
+    let favorite1 = {
+      title: "We Will Rock You",
+      artistName: "Queen",
+      genre: "Rock",
+      rating: 87
+    };
 
-      let favorite2 = {
-        title: "Shake It Off",
-        artistName: "Taylor Swift",
-        genre: "Pop",
-        rating: 84
-      };
+    let favorite2 = {
+      title: "Shake It Off",
+      artistName: "Taylor Swift",
+      genre: "Pop",
+      rating: 84
+    };
 
-      let favorite3 = {
-       title: "Changes",
-       artistName: "2Pac",
-       genre: "Hip Hop/Rap",
-       rating: 50
-      };
+    let favorite3 = {
+     title: "Changes",
+     artistName: "2Pac",
+     genre: "Hip Hop/Rap",
+     rating: 50
+    };
 
-      await database('favorites').insert(favorite1, 'id');
-      await database('favorites').insert(favorite2, 'id');
-      await database('favorites').insert(favorite3, 'id');
+    await database('favorites').insert(favorite1, 'id');
+    await database('favorites').insert(favorite2, 'id');
+    await database('favorites').insert(favorite3, 'id');
 
     const res = await request(app)
-    .get("/api/v1/favorites");
+      .get("/api/v1/favorites");
 
     expect(res.statusCode).toBe(200);
 

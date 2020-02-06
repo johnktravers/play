@@ -8,12 +8,12 @@ const database = require('knex')(configuration);
 
 describe('Add favorites endpoint', () => {
   beforeEach(async () => {
-       await database.raw('truncate table favorites cascade');
-    });
+    await database.raw('truncate table favorites cascade');
+  });
 
-    afterEach(async () => {
-      await database.raw('truncate table favorites cascade');
-    });
+  afterEach(async () => {
+    await database.raw('truncate table favorites cascade');
+  });
 
   test('It can add a new favorite track', async () => {
     const res = await request(app)
