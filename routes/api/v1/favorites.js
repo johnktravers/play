@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const Track = require('../../../pojos/track');
+const ResponseObj = require('../../../pojos/responseObj');
 const musixmatchService = require('../../../services/musixmatch-service');
 
 const environment = process.env.NODE_ENV || 'development';
@@ -16,85 +17,96 @@ router.post('/', async (request, response) => {
 
   if (trackTitle && artistName) {
 
-    try {
-      let trackData = await musixmatchService.getTrackData(trackTitle, artistName, response);
-      let track = new Track(trackData);
-      let exists = await alreadyFavorite(track, response)
-      if (exists) { return errorResponse(409, exists, response) }
-      await addFavoriteToDB(track, response);
-    } catch(error) {
-      return errorResponse(500, 'Something went wrong. Please try again.', response)
+    let trackDataResObj = await musixmatchService.getTrackData(trackTitle, artistName);
+    if (trackDataResObj.status === 400) { return errorResponse(trackDataResObj, response); }
+
+    let track = await new Track(trackDataResObj.payload);
+    let existsResObj = await alreadyFavorite(track);
+    if (existsResObj.status === 409) { return errorResponse(existsResObj, response); }
+
+    let savedTrackResObj = await addFavoriteToDB(track);
+    if (savedTrackResObj.status === 201) {
+      return response.status(201).json(savedTrackResObj.payload);
+    } else {
+      return errorResponse(savedTrackResObj, response);
     }
 
   } else if (trackTitle && !artistName) {
-    return errorResponse(400, 'Bad Request! Did you send an artist name?', response)
+    let res_obj = new ResponseObj(400, 'Bad Request! Did you send an artist name?');
+    return errorResponse(res_obj, response);
   } else if (!trackTitle && artistName) {
-    return errorResponse(400, 'Bad Request! Did you send a song title?', response)
+    let res_obj = new ResponseObj(400, 'Bad Request! Did you send a song title?');
+    return errorResponse(res_obj, response);
   } else {
-    return errorResponse(400, 'Bad Request! Did you send an artist name and song title?', response)
+    let res_obj = new ResponseObj(400, 'Bad Request! Did you send an artist name and song title?');
+    return errorResponse(res_obj, response);
   }
-
 });
 
 router.get('/', async (request, response) => {
-  return await database('favorites').select()
-      .then((favorites) => response.status(200).json(favorites))
-      .catch(error => response.status(500).json({error: "There was an error!"}));
+  let favorites = await database('favorites').select();
+
+  if (favorites) {
+    return response.status(200).json(favorites);
+  } else {
+    let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+    return errorResponse(res_obj, response);
+  }
 });
 
 router.get('/:id', async (request, response) => {
-  return await database('favorites').where('id', request.params.id).select()
-      .then((favorite) => {
-        if (favorite.length) {
-          response.status(200).json(favorite[0]);
-        } else {
-          response.status(404).json({error: "No favorite track was found with that id"});
-        }
-      }).catch(error => response.status(500).json({error: "There was an error!"}));
+  let favorite =  await database('favorites').where('id', request.params.id);
+
+  if (favorite.length) {
+    return response.status(200).json(favorite[0]);
+  } else {
+    let res_obj = new ResponseObj(404, 'No favorite track with given ID was found. Please check the ID and try again.');
+    return errorResponse(res_obj, response);
+  }
 });
 
 router.delete('/:id', async (request, response) => {
-  return await database('favorites')
-    .where('id', request.params.id)
-    .del()
-    .then(rows => {
-      if (rows === 1) {
-        return response.status(204).send();
-      } else {
-        return response.status(404).json({error: 'No favorite track with that ID was found. Please try again.'});
-      }
-    })
-    .catch(error => response.status(500).json({error: 'There was an error!'}));
+  let rowsDeleted = await database('favorites').where('id', request.params.id).del();
+
+  if (rowsDeleted === 1) {
+    return response.status(204).send();
+  } else {
+    let res_obj = new ResponseObj(404, 'No favorite track with given ID was found. Please check the ID and try again.');
+    return errorResponse(res_obj, response);
+  }
 });
 
-async function alreadyFavorite(track, response) {
-  return await database('favorites')
-    .where({title: track.title, artistName: track.artistName})
-    .then(result => {
-      if (result.length) {
-        return 'That track has already been added to your favorites!'
-      }
-    })
+async function alreadyFavorite(track) {
+  let tracks = await database('favorites')
+    .where({title: track.title, artistName: track.artistName});
+
+  if (tracks.length) {
+    return new ResponseObj(409, 'That track has already been added to your favorites!')
+  } else {
+    return new ResponseObj(200, 'Track has not yet been favorited.')
+  }
 };
 
-async function addFavoriteToDB(track, response) {
-  return await database('favorites')
-    .insert(
+async function addFavoriteToDB(track) {
+  let savedTrack = await database('favorites').insert(
       {
         title: track.title,
         artistName: track.artistName,
         genre: track.genre,
         rating: track.rating
-      }, ['id', 'title', 'artistName', 'genre', 'rating']
-    )
-    .then(track => response.status(201).json(track[0]))
-    .catch(error => errorResponse(500, error, response))
+      }, ['id', 'title', 'artistName', 'genre', 'rating']);
+
+  if (savedTrack[0]) {
+    return new ResponseObj(201, savedTrack[0]);
+  } else {
+    return new ResponseObj(500, 'New track cannot be saved into database. Please try again.')
+  }
 };
 
-function errorResponse(status, message, response) {
-  return response.status(status).json({
-    status: status,
-    errorMessage: message
+function errorResponse(resObj, response) {
+  return response.status(resObj.status).json({
+    status: resObj.status,
+    errorMessage: resObj.payload
   });
 };
 
