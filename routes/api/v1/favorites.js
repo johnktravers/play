@@ -58,7 +58,14 @@ router.get('/:id', async (request, response) => {
   let favorite =  await database('favorites').where('id', request.params.id);
 
   if (favorite.length) {
-    return response.status(200).json(favorite[0]);
+    favoriteTrack = {
+      id: favorite[0].id,
+      title: favorite[0].title,
+      artistName: favorite[0].artistName,
+      genre: favorite[0].genre,
+      rating: favorite[0].rating
+    };
+    return response.status(200).json(favoriteTrack);
   } else {
     let res_obj = new ResponseObj(404, 'No favorite track with given ID was found. Please check the ID and try again.');
     return errorResponse(res_obj, response);
