@@ -45,9 +45,11 @@ router.post('/', async (request, response) => {
 
 router.get('/', async (request, response) => {
   let favorites = await database('favorites').select();
-
   if (favorites) {
-    return response.status(200).json(favorites);
+    let favoriteArray = favorites.map((favorite) => {
+      return { id: favorite.id, title: favorite.title, artistName: favorite.artistName, genre: favorite.genre, rating: favorite.rating };
+    });
+    return response.status(200).json(favoriteArray);
   } else {
     let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
     return errorResponse(res_obj, response);
@@ -58,7 +60,14 @@ router.get('/:id', async (request, response) => {
   let favorite =  await database('favorites').where('id', request.params.id);
 
   if (favorite.length) {
-    return response.status(200).json(favorite[0]);
+    favoriteTrack = {
+      id: favorite[0].id,
+      title: favorite[0].title,
+      artistName: favorite[0].artistName,
+      genre: favorite[0].genre,
+      rating: favorite[0].rating
+    };
+    return response.status(200).json(favoriteTrack);
   } else {
     let res_obj = new ResponseObj(404, 'No favorite track with given ID was found. Please check the ID and try again.');
     return errorResponse(res_obj, response);
@@ -81,9 +90,9 @@ async function alreadyFavorite(track) {
     .where({title: track.title, artistName: track.artistName});
 
   if (tracks.length) {
-    return new ResponseObj(409, 'That track has already been added to your favorites!')
+    return new ResponseObj(409, 'That track has already been added to your favorites!');
   } else {
-    return new ResponseObj(200, 'Track has not yet been favorited.')
+    return new ResponseObj(200, 'Track has not yet been favorited.');
   }
 };
 
@@ -99,7 +108,7 @@ async function addFavoriteToDB(track) {
   if (savedTrack[0]) {
     return new ResponseObj(201, savedTrack[0]);
   } else {
-    return new ResponseObj(500, 'New track cannot be saved into database. Please try again.')
+    return new ResponseObj(500, 'New track cannot be saved into database. Please try again.');
   }
 };
 

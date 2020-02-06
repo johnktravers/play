@@ -53,6 +53,9 @@ describe('Test the favorites path', () => {
     expect(res.body[0]).toHaveProperty('genre');
     expect(res.body[0]).toHaveProperty('rating');
 
+    expect(res.body[0]).not.toHaveProperty('created_at');
+    expect(res.body[0]).not.toHaveProperty('updated_at');
+
     expect(res.body[0].title).toEqual('We Will Rock You');
     expect(res.body[0].artistName).toEqual('Queen');
     expect(res.body[0].genre).toEqual('Rock');
