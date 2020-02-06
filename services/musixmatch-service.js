@@ -1,7 +1,9 @@
 const fetch = require('node-fetch');
 const { URL, URLSearchParams } = require('url');
+const ResponseObj = require('../pojos/responseObj');
 
-function getTrackData(trackTitle, artistName, response) {
+
+async function getTrackData(trackTitle, artistName) {
   let url = new URL('https://api.musixmatch.com/ws/1.1/track.search');
   let params = {
     apikey: process.env.MUSIXMATCH_API_KEY,
@@ -11,18 +13,19 @@ function getTrackData(trackTitle, artistName, response) {
   };
   url.search = new URLSearchParams(params).toString();
 
-  let trackData = fetch(url)
-    .then(response => response.json())
-    .catch(error => errorResponse(503, error, response))
+  let trackResponse = await fetch(url);
+  let trackData = await trackResponse.json();
 
-  return trackData
+  if (validResponse(trackData)) {
+    return new ResponseObj(200, trackData);
+  } else {
+    let message = 'No track found. Please check track title and artist name and try again.'
+    return new ResponseObj(400, message);
+  }
 }
 
-function errorResponse(status, message, response) {
-  response.status(status).json({
-    status: status,
-    error_message: message
-  });
+function validResponse(data) {
+  return (data.message.body.track_list.length) ? true : false;
 }
 
 module.exports = {
