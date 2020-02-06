@@ -48,7 +48,7 @@ describe('Add playlists endpoint', () => {
   test('It cannot add the same playlist twice', async () => {
     await database('playlists').insert({
       title: 'CodeSongs',
-    })
+    });
 
     const res = await request(app)
       .post("/api/v1/playlists")
