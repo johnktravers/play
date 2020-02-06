@@ -28,10 +28,8 @@ describe('Add playlists endpoint', () => {
     expect(res.body).toHaveProperty('created_at');
     expect(res.body).toHaveProperty('updated_at');
 
-    // expect(res.body.id).toEqual(1); // TEST THAT THE TABLE IS BEING TRUNCATED
+    expect(res.body.id).toEqual(1); // TEST THAT THE TABLE IS BEING TRUNCATED
     expect(res.body.title).toEqual('Music For Cooking Pasta');
-    // expect(res.body.rating).toBeGreaterThanOrEqual(1); HOW DO WE CHECK FOR CREATE AT?
-    // expect(res.body.rating).toBeLessThanOrEqual(100);
   });
 
   test('It cannot add a new playlist if missing the title', async () => {
