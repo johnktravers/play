@@ -34,7 +34,7 @@ describe('Add playlists endpoint', () => {
     // expect(res.body.rating).toBeLessThanOrEqual(100);
   });
 
-  test('It cannot add a new playlist track if missing the title', async () => {
+  test('It cannot add a new playlist if missing the title', async () => {
     const res = await request(app)
       .post("/api/v1/playlists")
       .send({ title: "" })
