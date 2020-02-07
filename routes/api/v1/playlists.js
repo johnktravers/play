@@ -29,6 +29,17 @@ router.post('/', async (request, response) => {
   }
 });
 
+router.delete('/:id', async (request, response) => {
+  let rowsDeleted = await database('playlists').where('id', request.params.id).del();
+
+  if (rowsDeleted === 1) {
+    return response.status(204).send();
+  } else {
+    let res_obj = new ResponseObj(404, 'No playlist with given ID was found. Please check the ID and try again.');
+    return errorResponse(res_obj, response);
+  }
+});
+
 async function alreadyFavorite(playlist) {
   let playlists = await database('playlists')
     .where({'title': playlist.title});
