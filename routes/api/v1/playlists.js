@@ -29,6 +29,25 @@ router.post('/', async (request, response) => {
   }
 });
 
+router.get('/', async (request, response) => {
+  let playlists = await database('playlists').select();
+
+  if (playlists) {
+    let playlistsArray = playlists.map(playlist => {
+      return {
+        id: playlist.id,
+        title: playlist.title,
+        createdAt: playlist.created_at,
+        updatedAt: playlist.updated_at
+      };
+    })
+    return response.status(200).json(playlistsArray);
+  } else {
+    let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+    return errorResponse(res_obj, response);
+  }
+});
+
 router.put('/:id', async (request, response) => {
   let newTitle = request.body.title;
 
