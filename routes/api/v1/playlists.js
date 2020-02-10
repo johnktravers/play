@@ -47,6 +47,41 @@ router.get('/', async (request, response) => {
     return errorResponse(res_obj, response);
   }
 });
+
+router.put('/:id', async (request, response) => {
+  let newTitle = request.body.title;
+
+  if (newTitle) {
+    let playlist = await database('playlists').where('id', request.params.id).first();
+    if (playlist) {
+      let updatedPlaylist = await database('playlists')
+        .where('id', playlist.id)
+        .update({title: newTitle}, ['id', 'title', 'created_at', 'updated_at']);
+
+      if (updatedPlaylist[0]) {
+        let updatedPlaylistFields = {
+          id: updatedPlaylist[0].id,
+          title: updatedPlaylist[0].title,
+          createdAt: updatedPlaylist[0].created_at,
+          updatedAt: updatedPlaylist[0].updated_at,
+        }
+        return response.status(200).json(updatedPlaylistFields);
+      } else {
+        let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+        return errorResponse(res_obj, response);
+      }
+
+    } else {
+      let res_obj = new ResponseObj(404, 'No playlist with given ID was found. Please check the ID and try again.');
+      return errorResponse(res_obj, response);
+    }
+
+  } else {
+    let res_obj = new ResponseObj(400, 'Bad Request! Did you send a new playlist title?');
+    return errorResponse(res_obj, response);
+  }
+});
+
 router.delete('/:id', async (request, response) => {
   let rowsDeleted = await database('playlists').where('id', request.params.id).del();
 
