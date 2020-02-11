@@ -103,6 +103,26 @@ The response will be a status `204` with no response body.
 
 #### 1) Getting a list of all playlists
 
+When a user sends a `GET` request to `api/v1/playlists` it returns all playlists currently in the database.
+
+Response body will look like:
+```
+[
+ {
+    "id": 1,
+    "title": "Cleaning House",
+    "createdAt": 2019-11-26T16:03:43+00:00,
+    "updatedAt": 2019-11-26T16:03:43+00:00
+  },
+  {
+    "id": 2,
+    "title": "Running Mix",
+    "createdAt": 2019-11-26T16:03:43+00:00,
+    "updatedAt": 2019-11-26T16:03:43+00:00
+  },
+]
+```
+
 #### 2) Updating a playlist by ID
 
 A user can send a `PUT` request to `/api/v1/playlists/:id` to update the title of a playlist in the database by the playlist ID.
