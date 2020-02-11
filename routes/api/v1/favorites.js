@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Track = require('../../../pojos/track');
 const ResponseObj = require('../../../pojos/responseObj');
-const musixmatchService = require('../../../services/musixmatch-service');
+const musixmatchService = require('../../../services/musixmatchService');
 
 const environment = process.env.NODE_ENV || 'development';
 const configuration = require('../../../knexfile')[environment];
