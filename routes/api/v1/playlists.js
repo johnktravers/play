@@ -93,6 +93,57 @@ router.delete('/:id', async (request, response) => {
   }
 });
 
+router.post('/:playlistID/favorites/:favoriteID', async (request, response) => {
+  let playlist = await database('playlists').where('id', request.params.playlistID).first();
+  let favorite = await database('favorites').where('id', request.params.favoriteID).first();
+
+  if (playlist && favorite) {
+    let existsResObj = await alreadyPlaylistFavorite(playlist, favorite);
+    if (existsResObj.status == 409) { return errorResponse(existsResObj, response); }
+
+    let savedPlaylistFavoriteResObj = await addPlaylistFavoriteToDB(playlist, favorite);
+    if (savedPlaylistFavoriteResObj.status == 201) {
+      return response.status(201).json({
+        Success: savedPlaylistFavoriteResObj.payload
+      });
+    } else {
+      return errorResponse(savedPlaylistFavoriteResObj, response);
+    }
+
+  } else if (playlist && !favorite) {
+    let res_obj = new ResponseObj(404, 'No favorite with given ID was found. Please check the ID and try again.')
+    return errorResponse(res_obj, response);
+  } else if (!playlist && favorite) {
+    let res_obj = new ResponseObj(404, 'No playlist with given ID was found. Please check the ID and try again.')
+    return errorResponse(res_obj, response);
+  } else {
+    let res_obj = new ResponseObj(404, 'No playlist or favorite with given IDs were found. Please check the IDs and try again.')
+    return errorResponse(res_obj, response);
+  }
+});
+
+async function alreadyPlaylistFavorite(playlist, favorite) {
+  let playlistFavorite = await database('playlistFavorites')
+    .where({playlist_id: playlist.id, favorite_id: favorite.id});
+  if (playlistFavorite.length) {
+    return new ResponseObj(409, 'That favorite has already been added to that playlist!');
+  } else {
+    return new ResponseObj(200, 'Favorite has not yet been added to that playlist.');
+  }
+};
+
+async function addPlaylistFavoriteToDB(playlist, favorite) {
+  let savedPlaylistFavorite = await database('playlistFavorites').insert({
+    playlist_id: playlist.id,
+    favorite_id: favorite.id
+  }, 'id');
+  if (savedPlaylistFavorite[0]) {
+    return new ResponseObj(201, `${favorite.title} has been added to ${playlist.title}!`);
+  } else {
+    return new ResponseObj(500, 'Favorite cannot be added to playlist. Please try again.');
+  }
+};
+
 async function alreadyFavorite(playlist) {
   let playlists = await database('playlists')
     .where({'title': playlist.title});
