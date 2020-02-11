@@ -30,7 +30,7 @@ router.post('/', async (request, response) => {
 });
 
 router.get('/', async (request, response) => {
-  let playlists = await database('playlists').select();
+  let playlists = await database('playlists').select().orderBy('id', 'asc');
 
   if (playlists) {
     let playlistsArray = playlists.map(playlist => {
