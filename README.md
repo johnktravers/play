@@ -141,7 +141,7 @@ The response body will be:
 }
 ```
 
-#### 4) Deleting a favorite track
+#### 4) Deleting a playlist
 
 A user can send a `DELETE` request to `api/v1/playlists/:id` which deletes that playlist from the database.
 
