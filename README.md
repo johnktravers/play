@@ -36,7 +36,7 @@ The following environment variables are required.
 
 #### 1) Getting a list of all favorite tracks
 
-When a user sends a `GET` request to `api/v1/favorites` it returns all favorited songs currently in the database.
+When a user sends a `GET` request to `/api/v1/favorites` it returns all favorited songs currently in the database.
 
 Response body will look like:
 ```
@@ -95,7 +95,7 @@ The response body will be:
 
 #### 4) Deleting a favorite track
 
-A user can send a `DELETE` request to `api/v1/favorites/:id` which deletes that favorite song from the database.
+A user can send a `DELETE` request to `/api/v1/favorites/:id` which deletes that favorite song from the database.
 
 The response will be a status `204` with no response body.
 
@@ -103,7 +103,7 @@ The response will be a status `204` with no response body.
 
 #### 1) Getting a list of all playlists
 
-When a user sends a `GET` request to `api/v1/playlists` it returns all playlists currently in the database.
+When a user sends a `GET` request to `/api/v1/playlists` it returns all playlists currently in the database.
 
 Response body will look like:
 ```
@@ -163,9 +163,23 @@ The response body will be:
 
 #### 4) Deleting a playlist
 
-A user can send a `DELETE` request to `api/v1/playlists/:id` which deletes that playlist from the database.
+A user can send a `DELETE` request to `/api/v1/playlists/:id` which deletes that playlist from the database.
 
 The response will be a status `204` with no response body.
+
+### Playlist Favorites Endpoint
+
+#### 1) Adding a favorite to a playlist
+
+A user can send a `POST` request to `/api/v1/playlists/:playlistID/favorites/:favoriteID` which adds the given favorite to the given playlist.
+
+The response body will be:
+
+```
+{
+  "Success": "{Song Title} has been added to {Playlist Title}!"
+}
+```
 
 ## Focus Areas
 
