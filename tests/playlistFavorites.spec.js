@@ -174,4 +174,59 @@ describe('Playlist favorites endpoints', () => {
       expect(res.body.errorMessage).toEqual('No favorite with given ID was found. Please check the ID and try again.');
     });
   });
+
+  describe('Get playlist favorites endpoint', () => {
+    test('It can get a list of favorites from a playlist with stats', async () => {
+      let playlistId = await database('playlists').insert({title: 'Jogging Jams'}, 'id');
+      let favoriteId1 = await database('favorites').insert({
+        title: 'Me!',
+        artistName: 'Taylor Swift',
+        genre: 'MegaPop',
+        rating: 10
+      }, 'id');
+      let favoriteId2 = await database('favorites').insert({
+        title: 'ABC',
+        artistName: 'Jackson 5',
+        genre: 'Pop',
+        rating: 1
+      }, 'id');
+
+
+      let playlistFavoriteId = await database('playlistFavorites')
+        .insert([
+          { playlist_id: playlistId[0], favorite_id: favoriteId1[0] },
+          { playlist_id: playlistId[0], favorite_id: favoriteId2[0] }
+        ], 'id');
+
+      const res = await request(app)
+        .get(`/api/v1/playlists/${playlistId[0]}/favorites`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('id');
+      expect(res.body).toHaveProperty('title');
+      expect(res.body).toHaveProperty('songCount');
+      expect(res.body).toHaveProperty('songAvgRating');
+      expect(res.body).toHaveProperty('favorites');
+      expect(res.body.favorites.length).toBe(2);
+      expect(res.body.favorites[0]).toHaveProperty('id');
+      expect(res.body.favorites[0]).toHaveProperty('title');
+      expect(res.body.favorites[0]).toHaveProperty('artistName');
+      expect(res.body.favorites[0]).toHaveProperty('genre');
+      expect(res.body.favorites[0]).toHaveProperty('rating');
+      expect(res.body).toHaveProperty('createdAt');
+      expect(res.body).toHaveProperty('updatedAt');
+    });
+
+    test('It sends a 404 message that no playlist was found if id is invalid', async () => {
+      const res = await request(app)
+          .get(`/api/v1/playlists/1000/favorites`);
+
+      expect(res.statusCode).toBe(404);
+      expect(res.body).toHaveProperty('status');
+      expect(res.body).toHaveProperty('errorMessage');
+      expect(res.body.status).toEqual(404);
+      expect(res.body.errorMessage).toEqual('No playlist with that id could be found. Please check the ID and try again.');
+    });
+  });
+
 });

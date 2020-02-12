@@ -214,7 +214,39 @@ The response body will be:
 }
 ```
 
-#### 4) Deleting a favorite from a playlist
+#### 2) Getting a playlists favorites
+
+When a user sends a `GET` request to `/api/v1/playlists/:playlistID/favorites` it returns the playlist with that :id. It also returns the playlist's song count, average song rating, and a list of favorite tracks that the playlist contains.
+
+The response body will look like:
+```
+{
+  "id": 1,
+  "title": "Cleaning House",
+  "songCount": 2,
+  "songAvgRating": 27.5,
+  "favorites": [
+                  {
+                    "id": 1,
+                    "title": "We Will Rock You",
+                    "artistName": "Queen"
+                    "genre": "Rock",
+                    "rating": 25
+                  },
+                  {
+                    "id": 4,
+                    "title": "Back In Black",
+                    "artistName": "AC/DC"
+                    "genre": "Rock",
+                    "rating": 30
+                  }
+                ],
+  "createdAt": 2019-11-26T16:03:43+00:00,
+  "updatedAt": 2019-11-26T16:03:43+00:00
+}
+```
+
+#### 3) Deleting a favorite from a playlist
 
 A user can send a `DELETE` request to `/api/v1/playlists/:playlistID/favorites/:favoriteID` which deletes that favorite song from the playlist (and the joins table of the database).
 
