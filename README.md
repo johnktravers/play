@@ -30,6 +30,18 @@ The following environment variables are required.
 - **DATABASE_URL** set to the location of your production database
 - **MUSIXMATCH_API_KEY** set to your registered MusixMatch Developer API Key
 
+## Testing
+
+### Running Tests
+
+#### Run all tests
+
+One you have run a `npm install` you can run all test using the `npm test` command.
+
+#### Run individual tests
+
+Individual tests can be run using the `jest -t '<describeString> <itString>` command formula.
+
 ## How to Use / Endpoints
 
 ### Favorites Endpoint
@@ -181,6 +193,12 @@ The response body will be:
 }
 ```
 
+#### 4) Deleting a favorite from a playlist
+
+A user can send a `DELETE` request to `/api/v1/playlists/:playlistID/favorites/:favoriteID` which deletes that favorite song from the playlist (and the joins table of the database).
+
+The response will be a status `204` with no response body.
+
 ## Focus Areas
 
 - Creating an API
@@ -201,18 +219,6 @@ The response body will be:
 ## Database
 
 DATABASE SCHEMA GOES HERE
-
-## Testing
-
-### Running Tests
-
-#### Run all tests
-
-One you have run a `npm install` you can run all test using the `npm test` command.
-
-#### Run individual tests
-
-Individual tests can be run using the `jest -t '<describeString> <itString>` command formula.
 
 ## Core Contributors
 - Brian Bower
