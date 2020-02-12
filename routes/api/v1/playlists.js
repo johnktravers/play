@@ -196,9 +196,16 @@ async function addPlaylistToDB(playlist) {
 };
 
 async function getFavorites(playlists) {
-  return playlists.map(async (playlist) => {
-    return await database('favorites').join('playlistFavorites', 'playlistFavorites.favorite_id', 'favorites.id').where('playlistFavorites.playlist_id', playlist.id);
-  });
+  return Promise.all(
+    playlists.map(async (playlist) => {
+    return await database('favorites')
+      .join('playlistFavorites', 'playlistFavorites.favorite_id', 'favorites.id')
+      .where('playlistFavorites.playlist_id', playlist.id)
+      .select('favorites.id', 'favorites.title', 'favorites.artistName', 'favorites.genre', 'favorites.rating');
+    })
+  );
+};
+
 function songAvgRating(favorites) {
   let count = favorites.length;
   if (count === 0) { return 0 }
