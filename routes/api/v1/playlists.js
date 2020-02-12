@@ -128,7 +128,6 @@ router.post('/:playlistID/favorites/:favoriteID', async (request, response) => {
   }
 });
 
-
 router.delete('/:playlistID/favorites/:favoriteID', async (request, response) => {
   let playlist = await database('playlists').where('id', request.params.playlistID).select();
   if (playlist.length) {
@@ -150,6 +149,36 @@ router.delete('/:playlistID/favorites/:favoriteID', async (request, response) =>
     return errorResponse(res_obj, response);
   }
 });
+
+router.get('/:playlistID/favorites', async (request, response) => {
+  let playlists = await database('playlists')
+    .where('id', request.params.playlistID);
+
+  if (playlists) {
+    let favorites = await getFavorites(playlists);
+
+    let playlistsArray =  playlists.map((playlist, index) => {
+      return {
+        id: playlist.id,
+        title: playlist.title,
+        songCount: favorites[index].length,
+        songAvgRating: songAvgRating(favorites[index]),
+        favorites: favorites[index],
+        createdAt: playlist.created_at,
+        updatedAt: playlist.updated_at
+      };
+    });
+
+    return response.status(200).json(playlistsArray[0]);
+  } else {
+    let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+    return errorResponse(res_obj, response);
+  }
+});
+
+
+
+
 
 async function alreadyPlaylistFavorite(playlist, favorite) {
   let playlistFavorite = await database('playlistFavorites')
