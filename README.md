@@ -271,7 +271,7 @@ The response will be a status `204` with no response body.
 
 ## Database
 
-DATABASE SCHEMA GOES HERE
+![schema diagram](https://user-images.githubusercontent.com/38663414/74381281-0b41d480-4de3-11ea-80fd-711ae471cf83.png)
 
 ## Core Contributors
 - Brian Bower
