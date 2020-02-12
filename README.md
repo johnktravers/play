@@ -181,6 +181,12 @@ The response body will be:
 }
 ```
 
+#### 4) Deleting a favorite from a playlist
+
+A user can send a `DELETE` request to `/api/v1/playlists/:playlistID/favorites/:favoriteID` which deletes that favorite song from the playlist (and the joins table of the database).
+
+The response will be a status `204` with no response body.
+
 ## Focus Areas
 
 - Creating an API
