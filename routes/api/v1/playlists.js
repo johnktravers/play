@@ -122,6 +122,29 @@ router.post('/:playlistID/favorites/:favoriteID', async (request, response) => {
   }
 });
 
+
+router.delete('/:playlistID/favorites/:favoriteID', async (request, response) => {
+  let playlist = await database('playlists').where('id', request.params.playlistID).select();
+  if (playlist.length) {
+    let favorite = await database('favorites').where('id', request.params.favoriteID).select();
+    if (favorite.length) {
+      let rowsDeleted = await database('playlistFavorites').where({playlist_id: request.params.playlistID, favorite_id: request.params.favoriteID}).del();
+      if (rowsDeleted === 1) {
+        return response.status(204).send();
+      } else {
+        let res_obj = new ResponseObj(404, 'No playlist favorite was found. Please check the ID and try again.');
+        return errorResponse(res_obj, response);
+      }
+    } else {
+      let res_obj = new ResponseObj(404, 'No favorite with given ID was found. Please check the ID and try again.');
+      return errorResponse(res_obj, response);
+    }
+  } else {
+    let res_obj = new ResponseObj(404, 'No playlist with given ID was found. Please check the ID and try again.');
+    return errorResponse(res_obj, response);
+  }
+});
+
 async function alreadyPlaylistFavorite(playlist, favorite) {
   let playlistFavorite = await database('playlistFavorites')
     .where({playlist_id: playlist.id, favorite_id: favorite.id});
