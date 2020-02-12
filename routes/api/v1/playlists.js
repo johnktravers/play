@@ -33,14 +33,20 @@ router.get('/', async (request, response) => {
   let playlists = await database('playlists').select().orderBy('id', 'asc');
 
   if (playlists) {
-    let playlistsArray = playlists.map(playlist => {
+    let favorites = await getFavorites(playlists);
+
+    let playlistsArray =  playlists.map((playlist, index) => {
       return {
         id: playlist.id,
         title: playlist.title,
+        songCount: favorites[index].length,
+        songAvgRating: songAvgRating(favorites[index]),
+        favorites: favorites[index],
         createdAt: playlist.created_at,
         updatedAt: playlist.updated_at
       };
-    })
+    });
+
     return response.status(200).json(playlistsArray);
   } else {
     let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
@@ -189,6 +195,28 @@ async function addPlaylistToDB(playlist) {
     return new ResponseObj(500, 'New playlist cannot be saved into database. Please try again.');
   }
 };
+
+async function getFavorites(playlists) {
+  return Promise.all(
+    playlists.map(async (playlist) => {
+    return await database('favorites')
+      .join('playlistFavorites', 'playlistFavorites.favorite_id', 'favorites.id')
+      .where('playlistFavorites.playlist_id', playlist.id)
+      .select('favorites.id', 'favorites.title', 'favorites.artistName', 'favorites.genre', 'favorites.rating');
+    })
+  );
+};
+
+function songAvgRating(favorites) {
+  let count = favorites.length;
+  if (count === 0) { return 0 }
+
+  let sum = 0;
+  favorites.forEach(favorite => sum += favorite.rating)
+
+  return sum / count;
+};
+
 
 function errorResponse(resObj, response) {
   return response.status(resObj.status).json({

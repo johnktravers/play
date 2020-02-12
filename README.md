@@ -115,23 +115,44 @@ The response will be a status `204` with no response body.
 
 #### 1) Getting a list of all playlists
 
-When a user sends a `GET` request to `/api/v1/playlists` it returns all playlists currently in the database.
+When a user sends a `GET` request to `/api/v1/playlists` it returns all playlists currently in the database. It also returns each playlist's song count, average song rating, and a list of favorite tracks that the playlist contains.
 
-Response body will look like:
+The response body will look like:
 ```
 [
- {
+  {
     "id": 1,
     "title": "Cleaning House",
+    "songCount": 2,
+    "songAvgRating": 27.5,
+    "favorites": [
+                    {
+                      "id": 1,
+                      "title": "We Will Rock You",
+                      "artistName": "Queen"
+                      "genre": "Rock",
+                      "rating": 25
+                    },
+                    {
+                      "id": 4,
+                      "title": "Back In Black",
+                      "artistName": "AC/DC"
+                      "genre": "Rock",
+                      "rating": 30
+                    }
+                  ],
     "createdAt": 2019-11-26T16:03:43+00:00,
     "updatedAt": 2019-11-26T16:03:43+00:00
   },
   {
     "id": 2,
     "title": "Running Mix",
+    "songCount": 0,
+    "songAvgRating": 0,
+    "favorites": []
     "createdAt": 2019-11-26T16:03:43+00:00,
     "updatedAt": 2019-11-26T16:03:43+00:00
-  },
+  }
 ]
 ```
 

@@ -8,11 +8,11 @@ const database = require('knex')(configuration);
 
 describe('Playlists endpoints', () => {
   beforeEach(async () => {
-    await database.raw('TRUNCATE TABLE playlists RESTART IDENTITY CASCADE');
+    await database.raw('TRUNCATE TABLE playlists, favorites, "playlistFavorites" RESTART IDENTITY CASCADE');
   });
 
   afterEach(async () => {
-    await database.raw('TRUNCATE TABLE playlists RESTART IDENTITY CASCADE');
+    await database.raw('TRUNCATE TABLE playlists, favorites, "playlistFavorites" RESTART IDENTITY CASCADE');
   });
 
   describe('Add playlists endpoint', () => {
@@ -166,6 +166,36 @@ describe('Playlists endpoints', () => {
         { title: 'All of the Yogas' }
       ], ['id', 'created_at', 'updated_at']);
 
+      let favorites = await database('favorites').returning('*').insert([
+        {
+          title: 'Banana Pancakes',
+          artistName: 'Jack Johnson',
+          genre: 'Rock',
+          rating: 26
+        },
+        {
+          title: 'Blank Space',
+          artistName: 'Taylor Swift',
+          genre: 'Pop',
+          rating: 84
+        }
+      ]);
+
+      let playlistFavorites = await database('playlistFavorites').returning('*').insert([
+        {
+          playlist_id: playlists[0].id,
+          favorite_id: favorites[0].id
+        },
+        {
+          playlist_id: playlists[0].id,
+          favorite_id: favorites[1].id
+        },
+        {
+          playlist_id: playlists[1].id,
+          favorite_id: favorites[0].id
+        },
+      ]);
+
       const res = await request(app)
         .get('/api/v1/playlists');
 
@@ -174,21 +204,43 @@ describe('Playlists endpoints', () => {
 
       expect(res.body[0]).toHaveProperty('id');
       expect(res.body[0]).toHaveProperty('title');
+      expect(res.body[0]).toHaveProperty('songCount');
+      expect(res.body[0]).toHaveProperty('songAvgRating');
+      expect(res.body[0]).toHaveProperty('favorites');
       expect(res.body[0]).toHaveProperty('createdAt');
       expect(res.body[0]).toHaveProperty('updatedAt');
 
       expect(res.body[0].id).toBe(playlists[0].id);
       expect(res.body[0].title).toBe('Road Trip!');
+      expect(res.body[0].songCount).toBe(2);
+      expect(res.body[0].songAvgRating).toBe(55);
+      expect(res.body[0].favorites[0]).toHaveProperty('id');
+      expect(res.body[0].favorites[0]).toHaveProperty('title');
+      expect(res.body[0].favorites[0]).toHaveProperty('artistName');
+      expect(res.body[0].favorites[0]).toHaveProperty('genre');
+      expect(res.body[0].favorites[0]).toHaveProperty('rating');
+      expect(res.body[0].favorites.length).toBe(2);
       expect(res.body[0].createdAt).toBe(playlists[0].created_at.toJSON());
       expect(res.body[0].updatedAt).toBe(playlists[0].updated_at.toJSON());
 
       expect(res.body[1].id).toBe(playlists[1].id);
       expect(res.body[1].title).toBe('Love Mix Tape #341');
+      expect(res.body[1].songCount).toBe(1);
+      expect(res.body[1].songAvgRating).toBe(26);
+      expect(res.body[1].favorites[0]).toHaveProperty('id');
+      expect(res.body[1].favorites[0]).toHaveProperty('title');
+      expect(res.body[1].favorites[0]).toHaveProperty('artistName');
+      expect(res.body[1].favorites[0]).toHaveProperty('genre');
+      expect(res.body[1].favorites[0]).toHaveProperty('rating');
+      expect(res.body[1].favorites.length).toBe(1);
       expect(res.body[1].createdAt).toBe(playlists[1].created_at.toJSON());
       expect(res.body[1].updatedAt).toBe(playlists[1].updated_at.toJSON());
 
       expect(res.body[2].id).toBe(playlists[2].id);
       expect(res.body[2].title).toBe('All of the Yogas');
+      expect(res.body[2].songCount).toBe(0);
+      expect(res.body[2].songAvgRating).toBe(0);
+      expect(res.body[2].favorites).toStrictEqual([]);
       expect(res.body[2].createdAt).toBe(playlists[2].created_at.toJSON());
       expect(res.body[2].updatedAt).toBe(playlists[2].updated_at.toJSON());
     });
