@@ -199,6 +199,14 @@ async function getFavorites(playlists) {
   return playlists.map(async (playlist) => {
     return await database('favorites').join('playlistFavorites', 'playlistFavorites.favorite_id', 'favorites.id').where('playlistFavorites.playlist_id', playlist.id);
   });
+function songAvgRating(favorites) {
+  let count = favorites.length;
+  if (count === 0) { return 0 }
+
+  let sum = 0;
+  favorites.forEach(favorite => sum += favorite.rating)
+
+  return sum / count;
 };
 
 
