@@ -75,6 +75,7 @@ router.get('/:id', async (request, response) => {
 });
 
 router.delete('/:id', async (request, response) => {
+  await database('playlistFavorites').where('favorite_id', request.params.id).del();
   let rowsDeleted = await database('favorites').where('id', request.params.id).del();
 
   if (rowsDeleted === 1) {

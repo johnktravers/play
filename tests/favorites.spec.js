@@ -9,11 +9,11 @@ const database = require('knex')(configuration);
 describe('Favorites endpoints', () => {
 
   beforeEach(async () => {
-    await database.raw('TRUNCATE TABLE favorites RESTART IDENTITY CASCADE');
+    await database.raw('TRUNCATE TABLE favorites, playlists, "playlistFavorites" RESTART IDENTITY CASCADE');
   });
 
   afterEach(async () => {
-    await database.raw('TRUNCATE TABLE favorites RESTART IDENTITY CASCADE');
+    await database.raw('TRUNCATE TABLE favorites, playlists, "playlistFavorites" RESTART IDENTITY CASCADE');
   });
 
   describe('Add favorites endpoint', () => {
@@ -163,6 +163,33 @@ describe('Favorites endpoints', () => {
 
       expect(list_res.body[0]).toHaveProperty('id');
       expect(list_res.body[0].id).toBe(favorite_ids[1]);
+    });
+
+    test('It deletes the associated info from the joins table', async () => {
+      let playlists = await database('playlists').insert(
+        { title: 'Road Trip!' }, ['id', 'created_at', 'updated_at']);
+
+      let favorites = await database('favorites').returning('*')
+      .insert(
+        {
+          title: 'Banana Pancakes',
+          artistName: 'Jack Johnson',
+          genre: 'Rock',
+          rating: 26
+        });
+
+      let playlistFavorites = await database('playlistFavorites').returning('*')
+      .insert({ playlist_id: playlists[0].id, favorite_id: favorites[0].id });
+
+      const res = await request(app)
+        .delete(`/api/v1/favorites/${favorites[0].id}`);
+
+      expect(res.statusCode).toBe(204);
+
+      let playlistFavorite = await database('playlistFavorites')
+      .where({ playlist_id: playlists[0].id, favorite_id: favorites[0].id });
+
+      expect(playlistFavorite).toStrictEqual([]);
     });
 
     test('It sends a 404 message that no track was found if id is invalid', async () => {
