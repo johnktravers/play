@@ -215,50 +215,18 @@ describe('Playlist favorites endpoints', () => {
       expect(res.body.favorites[0]).toHaveProperty('rating');
       expect(res.body).toHaveProperty('createdAt');
       expect(res.body).toHaveProperty('updatedAt');
-
     });
 
-    // test('It sends a 404 message that no playlist favorite was found if id is invalid', async () => {
-    //   let playlistId1 = await database('playlists').insert({title: 'Jogging Jams'}, 'id');
-    //   let favoriteId1 = await database('favorites').insert({
-    //     title: 'Mean',
-    //     artistName: 'Taylor Swift',
-    //     genre: 'MegaPop',
-    //     rating: 27
-    //   }, 'id');
-    //
-    //   const res = await request(app)
-    //     .delete(`/api/v1/playlists/${playlistId1[0]}/favorites/${favoriteId1[0]}`);
-    //
-    //   expect(res.statusCode).toBe(404);
-    //   expect(res.body).toHaveProperty('status');
-    //   expect(res.body).toHaveProperty('errorMessage');
-    //   expect(res.body.status).toEqual(404);
-    //   expect(res.body.errorMessage).toEqual('No playlist favorite was found. Please check the ID and try again.');
-    // });
+    test('It sends a 404 message that no playlist was found if id is invalid', async () => {
+      const res = await request(app)
+          .get(`/api/v1/playlists/1000/favorites`);
 
-    // test('It sends a 404 message that no playlist was found if playlist id is invalid', async () => {
-    //   const res = await request(app)
-    //     .delete(`/api/v1/playlists/100/favorites/50`);
-    //
-    //   expect(res.statusCode).toBe(404);
-    //   expect(res.body).toHaveProperty('status');
-    //   expect(res.body).toHaveProperty('errorMessage');
-    //   expect(res.body.status).toEqual(404);
-    //   expect(res.body.errorMessage).toEqual('No playlist with given ID was found. Please check the ID and try again.');
-    // });
-
-    // test('It sends a 404 message that no favorite was found if favorite id is invalid', async () => {
-    //   let playlistId1 = await database('playlists').insert({title: 'Jogging Jams'}, 'id');
-    //   const res = await request(app)
-    //     .delete(`/api/v1/playlists/${playlistId1[0]}/favorites/50`);
-    //
-    //   expect(res.statusCode).toBe(404);
-    //   expect(res.body).toHaveProperty('status');
-    //   expect(res.body).toHaveProperty('errorMessage');
-    //   expect(res.body.status).toEqual(404);
-    //   expect(res.body.errorMessage).toEqual('No favorite with given ID was found. Please check the ID and try again.');
-    // });
+      expect(res.statusCode).toBe(404);
+      expect(res.body).toHaveProperty('status');
+      expect(res.body).toHaveProperty('errorMessage');
+      expect(res.body.status).toEqual(404);
+      expect(res.body.errorMessage).toEqual('No playlist with that id could be found. Please check the ID and try again.');
+    });
   });
 
 });
