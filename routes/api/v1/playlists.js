@@ -49,7 +49,7 @@ router.get('/', async (request, response) => {
 
     return response.status(200).json(playlistsArray);
   } else {
-    let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+    let res_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
     return errorResponse(res_obj, response);
   }
 });
@@ -154,7 +154,7 @@ router.get('/:playlistID/favorites', async (request, response) => {
   let playlists = await database('playlists')
     .where('id', request.params.playlistID);
 
-  if (playlists) {
+  if (playlists.length) {
     let favorites = await getFavorites(playlists);
 
     let playlistsArray =  playlists.map((playlist, index) => {
@@ -169,16 +169,17 @@ router.get('/:playlistID/favorites', async (request, response) => {
       };
     });
 
-    return response.status(200).json(playlistsArray[0]);
+    if (playlistsArray[0] && typeof favorites === 'object') {
+      return response.status(200).json(playlistsArray[0]);
+    } else {
+      return new ResponseObj(500, 'Unexpected error. Please try again.');
+    }
+
   } else {
-    let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
+    let res_obj = new ResponseObj(404, 'No playlist with that id could be found. Please check the ID and try again.');
     return errorResponse(res_obj, response);
   }
 });
-
-
-
-
 
 async function alreadyPlaylistFavorite(playlist, favorite) {
   let playlistFavorite = await database('playlistFavorites')
