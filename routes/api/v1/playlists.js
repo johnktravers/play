@@ -34,19 +34,20 @@ router.get('/', async (request, response) => {
 
   if (playlists) {
     let favorites = await getFavorites(playlists);
-    console.log(favorites);
 
     let playlistsArray =  playlists.map((playlist, index) => {
       return {
         id: playlist.id,
         title: playlist.title,
+        songCount: favorites[index].length,
+        songAvgRating: songAvgRating(favorites[index]),
         favorites: favorites[index],
         createdAt: playlist.created_at,
         updatedAt: playlist.updated_at
       };
     });
 
-    Promise.all(playlistsArray).then(() => response.status(200).json(playlistsArray));
+    return response.status(200).json(playlistsArray);
   } else {
     let resp_obj = new ResponseObj(500, 'Unexpected error. Please try again.');
     return errorResponse(res_obj, response);
