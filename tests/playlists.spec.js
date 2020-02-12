@@ -98,6 +98,33 @@ describe('Playlists endpoints', () => {
       expect(res.body.status).toEqual(404);
       expect(res.body.errorMessage).toEqual('No playlist with given ID was found. Please check the ID and try again.');
     });
+
+    test('It deletes the associated info from the joins table', async () => {
+      let playlists = await database('playlists').insert(
+        { title: 'Road Trip!' }, ['id', 'created_at', 'updated_at']);
+
+      let favorites = await database('favorites').returning('*')
+      .insert(
+        {
+          title: 'Banana Pancakes',
+          artistName: 'Jack Johnson',
+          genre: 'Rock',
+          rating: 26
+        });
+
+      let playlistFavorites = await database('playlistFavorites').returning('*')
+      .insert({ playlist_id: playlists[0].id, favorite_id: favorites[0].id });
+
+      const res = await request(app)
+        .delete(`/api/v1/playlists/${playlists[0].id}`);
+
+      expect(res.statusCode).toBe(204);
+
+      let playlistFavorite = await database('playlistFavorites')
+      .where({ playlist_id: playlists[0].id, favorite_id: favorites[0].id });
+
+      expect(playlistFavorite).toStrictEqual([]);
+    });
   });
 
   describe('Update playlist endpoint', () => {
