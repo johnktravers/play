@@ -219,7 +219,7 @@ describe('Playlists endpoints', () => {
       expect(res.body[0].favorites[0]).toHaveProperty('artistName');
       expect(res.body[0].favorites[0]).toHaveProperty('genre');
       expect(res.body[0].favorites[0]).toHaveProperty('rating');
-      expect(res.body[0].favorites.count).toBe(2);
+      expect(res.body[0].favorites.length).toBe(2);
       expect(res.body[0].createdAt).toBe(playlists[0].created_at.toJSON());
       expect(res.body[0].updatedAt).toBe(playlists[0].updated_at.toJSON());
 
@@ -232,7 +232,7 @@ describe('Playlists endpoints', () => {
       expect(res.body[1].favorites[0]).toHaveProperty('artistName');
       expect(res.body[1].favorites[0]).toHaveProperty('genre');
       expect(res.body[1].favorites[0]).toHaveProperty('rating');
-      expect(res.body[1].favorites.count).toBe(1);
+      expect(res.body[1].favorites.length).toBe(1);
       expect(res.body[1].createdAt).toBe(playlists[1].created_at.toJSON());
       expect(res.body[1].updatedAt).toBe(playlists[1].updated_at.toJSON());
 
@@ -240,7 +240,7 @@ describe('Playlists endpoints', () => {
       expect(res.body[2].title).toBe('All of the Yogas');
       expect(res.body[2].songCount).toBe(0);
       expect(res.body[2].songAvgRating).toBe(0);
-      expect(res.body[2].favorites).toBe([]);
+      expect(res.body[2].favorites).toStrictEqual([]);
       expect(res.body[2].createdAt).toBe(playlists[2].created_at.toJSON());
       expect(res.body[2].updatedAt).toBe(playlists[2].updated_at.toJSON());
     });
